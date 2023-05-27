@@ -8,7 +8,7 @@ public class test extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        liftController lift = new liftController(hardwareMap);
+        LiftController lift = new LiftController(hardwareMap);
         waitForStart();
         while(!isStopRequested() && opModeIsActive()){
             lift.update();

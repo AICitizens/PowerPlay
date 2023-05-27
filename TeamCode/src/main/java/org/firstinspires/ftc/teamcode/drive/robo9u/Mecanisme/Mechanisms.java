@@ -29,7 +29,7 @@ public class Mechanisms {
         dashboard.getTelemetry().addData("distance", distanceSensor.getDistance(DistanceUnit.MM));
         lift.update();
         dashboard.getTelemetry().update();
-        if(lift.lift.isBusy() || !lift.lift.getPoseEstimate().equals(new Pose2d()))
+        if(lift.lift.isBusy() || lift.lift.getCurrentPosition() > 0)
             return;
         if(minDistance <= distanceSensor.getDistance(DistanceUnit.MM) && distanceSensor.getDistance(DistanceUnit.MM) <= maxDistance)
             claw.Close();

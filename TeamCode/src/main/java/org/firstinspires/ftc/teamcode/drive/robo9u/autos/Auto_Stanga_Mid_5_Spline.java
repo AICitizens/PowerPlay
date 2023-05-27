@@ -124,7 +124,7 @@ public class Auto_Stanga_Mid_5_Spline extends LinearOpMode {
             telemetry.addData("x", drive.getPoseEstimate().getX());
             telemetry.addData("y", drive.getPoseEstimate().getY());
             telemetry.addData("heading", drive.getPoseEstimate().getHeading());
-            telemetry.addData("lift", mecanisme.lift.lift.getPoseEstimate().getX());
+            telemetry.addData("lift", mecanisme.lift.lift.getCurrentPosition());
             telemetry.update();
             mecanisme.update();
             drive.update();
