@@ -15,7 +15,7 @@ public class Lift {
     public LiftController lift;
     public Parallelo parallelo;
     public boolean canStop = false;
-    public static double ground = 0, low = 9, mid = 32, high = 58, stackConeDist = 3.25, stackPos;
+    public static double low = 9, mid = 32, high = 58, stackConeDist = 3.25, stackPos;
 
     Trajectory currentTrajectory;
 
@@ -61,7 +61,7 @@ public class Lift {
         parallelo.down();
         if(stackPos == -1)
             stackPos = 4;
-        lift.setTarget(3.25*stackPos + 0.5);
+        lift.setTarget(stackConeDist*stackPos + 0.5);
         stackPos -=1;
     }
 
