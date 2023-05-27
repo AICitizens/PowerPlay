@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.robo9u.Mecanisme.Mechanisms;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Mechanisms;
 @Disabled
 @TeleOp(name="localiz_1_driver")
 public class test1driver extends LinearOpMode {
@@ -51,9 +51,9 @@ public class test1driver extends LinearOpMode {
             mecanisme.claw.Open();
         }
         if(gamepad1.a){
-            mecanisme.lift.parallelo.down();
+            mecanisme.lift.fourBar.down();
         }else if(gamepad1.y) {
-            mecanisme.lift.parallelo.up();
+            mecanisme.lift.fourBar.up();
         }
     }
 
@@ -82,7 +82,7 @@ public class test1driver extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        mecanisme.lift.parallelo.down();
+        mecanisme.lift.fourBar.down();
         mecanisme.claw.Open();
         while(!isStopRequested())
         {

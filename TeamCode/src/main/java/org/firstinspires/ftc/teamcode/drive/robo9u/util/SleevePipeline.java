@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.drive.robo9u.util.OpenCv.hsv;
+package org.firstinspires.ftc.teamcode.drive.robo9u.util;
 
-import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.config.Config;
 
+import org.checkerframework.checker.units.qual.C;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -10,13 +11,12 @@ import org.opencv.core.Scalar;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.opencv.imgproc.Imgproc;
 
-public class pipeline_hsv extends OpenCvPipeline {
+@Config
+public class SleevePipeline extends OpenCvPipeline {
 
-    public enum CON_COLOR {GALBEN, TURCOAZ, MAGENTA} ;
-    public CON_COLOR culoare = CON_COLOR.TURCOAZ;
+    private int sleeveIndex;
 
     public static Point SLEEVE_TOPLEFT_ANCHOR_POINT = new Point(190, 10);
-
     public static int REGION_WIDTH = 80;
     public static int REGION_HEIGHT = 40;
 
@@ -37,42 +37,22 @@ public class pipeline_hsv extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
         Mat areaMat = input.submat(new Rect(sleeve_pointA, sleeve_pointB));
         Scalar sumColors = Core.sumElems(areaMat);
-
         double minColor = Math.min(sumColors.val[0], Math.min(sumColors.val[1], sumColors.val[2]));
-
-        if (sumColors.val[0] == minColor) {
-            culoare = CON_COLOR.TURCOAZ;
-            Imgproc.rectangle(
-                    input,
-                    sleeve_pointA,
-                    sleeve_pointB,
-                    CYAN,
-                    2
-            );
-        } else if (sumColors.val[1] == minColor) {
-            culoare = CON_COLOR.MAGENTA;
-            Imgproc.rectangle(
-                    input,
-                    sleeve_pointA,
-                    sleeve_pointB,
-                    MAGENTA,
-                    2
-            );
-        } else {
-            culoare = CON_COLOR.GALBEN;
-            Imgproc.rectangle(
-                    input,
-                    sleeve_pointA,
-                    sleeve_pointB,
-                    YELLOW,
-                    2
-            );
+        if (sumColors.val[0] == minColor) {//red is minimum
+            sleeveIndex = 2;
+            Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, CYAN, 2);
+        } else if (sumColors.val[1] == minColor) {//blue is minimum
+            sleeveIndex = 1;
+            Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, MAGENTA, 2);
+        } else {//yellow is minimum
+            sleeveIndex = 3;
+            Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, YELLOW, 2);
         }
         areaMat.release();
         return input;
     }
-    public CON_COLOR get_culoare(){
-        return culoare ;
+    public int getSleeveIndex(){
+        return sleeveIndex;
     }
 
 }

@@ -1,13 +1,9 @@
-package org.firstinspires.ftc.teamcode.drive.robo9u.Mecanisme;
+package org.firstinspires.ftc.teamcode.drive.robo9u.Modules;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 public class Claw {

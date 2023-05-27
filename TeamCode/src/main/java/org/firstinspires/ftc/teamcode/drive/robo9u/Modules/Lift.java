@@ -1,23 +1,18 @@
-package org.firstinspires.ftc.teamcode.drive.robo9u.Mecanisme;
+package org.firstinspires.ftc.teamcode.drive.robo9u.Modules;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.controllers.LiftController;
+import org.firstinspires.ftc.teamcode.drive.LiftController;
 
 @Config
 public class Lift {
     TouchSensor liftSensor;
     public LiftController lift;
-    public Parallelo parallelo;
+    public FourBar fourBar;
     public boolean canStop = false;
     public static double low = 9, mid = 32, high = 58, stackConeDist = 3.25, stackPos;
-
-    Trajectory currentTrajectory;
 
     public void stopCurrentTrajectory(){
         lift.stop();
@@ -28,28 +23,28 @@ public class Lift {
         stopCurrentTrajectory();
         canStop = false;
         lift.setTarget(high);
-        parallelo.up();
+        fourBar.up();
     }
 
     public void goToMid(){
         stopCurrentTrajectory();
         canStop = false;
         lift.setTarget(mid);
-        parallelo.up();
+        fourBar.up();
     }
 
     public void goToLow(){
         stopCurrentTrajectory();
         canStop = false;
         lift.setTarget(low);
-        parallelo.up();
+        fourBar.up();
     }
 
     public void retractFully(){
         stopCurrentTrajectory();
         canStop = true;
         lift.setTarget(0);
-        parallelo.down();
+        fourBar.down();
     }
 
     public void setPower(double power){
@@ -58,7 +53,7 @@ public class Lift {
     }
 
     public void nextStack(){
-        parallelo.down();
+        fourBar.down();
         if(stackPos == -1)
             stackPos = 4;
         lift.setTarget(stackConeDist*stackPos + 0.5);
@@ -71,14 +66,13 @@ public class Lift {
                 lift.stop();
                 canStop = false;
             }
-            lift.stopAndResetEncoders();
         }
         lift.update();
     }
 
     public Lift(HardwareMap hw){
         lift = new LiftController(hw);
-        parallelo = new Parallelo(hw);
+        fourBar = new FourBar(hw);
         liftSensor = hw.get(TouchSensor.class, "senzoratingere");
         stackPos = 4;
     }

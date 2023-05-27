@@ -9,13 +9,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.robo9u.Mecanisme.Mechanisms;
-import org.firstinspires.ftc.teamcode.drive.robo9u.util.OpenCv.DetectieCon;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Mechanisms;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Detection;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Config
 @Autonomous(group="Demo")
-public class Auto_Stanga_Mid_5_Spline extends LinearOpMode {
+public class Stanga extends LinearOpMode {
 
     public enum RobotState{
         ROBOT_INIT, // robot -> peste junction cu preload
@@ -44,8 +44,8 @@ public class Auto_Stanga_Mid_5_Spline extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DetectieCon detectie = new DetectieCon(hardwareMap, "Webcam 0");
-        detectie.init();
+        Detection detectie = new Detection(hardwareMap, "Webcam 0");
+        detectie.setSleeveDetectionMode();
         initialize();
         mecanisme = new Mechanisms(hardwareMap);
         drive = new SampleMecanumDrive(hardwareMap);
@@ -87,7 +87,7 @@ public class Auto_Stanga_Mid_5_Spline extends LinearOpMode {
                 case ROBOT_PLACE:
                     if(!mecanisme.lift.lift.isBusy() && !drive.isBusy()) {
                         mecanisme.claw.Open();
-                        mecanisme.lift.parallelo.down();
+                        mecanisme.lift.fourBar.down();
                         if (timer.milliseconds() >= gripTime) {
                             conesPlaced += 1;
                             drive.setPoseEstimate(new Pose2d(drive.getPoseEstimate().getX() + corectieeroarex, drive.getPoseEstimate().getY() + corectieeroarey, drive.getPoseEstimate().getHeading()));
@@ -110,7 +110,7 @@ public class Auto_Stanga_Mid_5_Spline extends LinearOpMode {
                     if(!drive.isBusy() && !mecanisme.lift.lift.isBusy()){
                         mecanisme.claw.Close();
                         if(timer.milliseconds() >= gripTime){
-                            mecanisme.lift.parallelo.paralelo.setPosition(0.6);
+                            mecanisme.lift.fourBar.servo.setPosition(0.6);
                             drive.followTrajectoryAsync(gotoMidfromStack);
                             mecanisme.lift.goToMid();
                             currentState = RobotState.ROBOT_PLACE;

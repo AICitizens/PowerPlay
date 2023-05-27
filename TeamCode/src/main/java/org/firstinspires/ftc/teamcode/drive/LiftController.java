@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.controllers;
+package org.firstinspires.ftc.teamcode.drive;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -15,7 +14,7 @@ public class LiftController {
     public static final double TICKS_PER_REV = 537.7;
     public static double WHEEL_RADIUS = 3.565; // cm
     public static double GEAR_RATIO = 2; // output (wheel) speed / input (motor) speed
-    public static double kp = 0.005, ki = 0, kd = 0, ff = 0.0005, relativeP = 0.005;
+    public static double kp = 0, ki = 0, kd = 0, ff = 0, relativeP = 0;
     public static double target = 0; //ticks
 
     private boolean canOverride = true;
@@ -48,11 +47,6 @@ public class LiftController {
 
     public void stop(){
         target = getCurrentPosition();
-    }
-
-    public void stopAndResetEncoders(){
-        //left.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        //right.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void update(){
