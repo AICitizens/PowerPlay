@@ -131,6 +131,7 @@ public class Stanga extends LinearOpMode {
         }
         mecanisme.lift.stopCurrentTrajectory();
         drive.breakFollowing();
+        detection.stopCamera();
         SampleMecanumDrive.lastAutonomousPosition = drive.getPoseEstimate();
     }
 }

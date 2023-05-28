@@ -68,6 +68,11 @@ public class NormalRobotCentric extends LinearOpMode {
         }else if(gamepad2.y){
             mecanisme.lift.fourBar.up();
         }
+        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
+        if(mecanisme.lift.liftState == Lift.LiftState.Ground && detection.coneDetected()){
+            mecanisme.claw.servo.close();
+            gamepad2.rumble(200);
+        }
     }
     public void updateLift() {
         mecanisme.lift.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
@@ -85,7 +90,7 @@ public class NormalRobotCentric extends LinearOpMode {
         }
 
         if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        mecanisme.lift.lowerIntoJunction(mecanisme.lift.lift.getCurrentPosition() > 10 && detection.junctionDetected());
+        mecanisme.lift.lowerIntoJunction(detection.junctionDetected());
     }
 
     public void updatetelemetry(){
@@ -97,7 +102,7 @@ public class NormalRobotCentric extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        while(!isStopRequested())
+        while(!isStopRequested() && opModeIsActive())
         {
             updateDrivePowers();
             updateClaw();
@@ -106,5 +111,6 @@ public class NormalRobotCentric extends LinearOpMode {
             drive.update();
             updatetelemetry();
         }
+        detection.stopCamera();
     }
 }

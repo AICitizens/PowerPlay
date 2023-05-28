@@ -72,7 +72,10 @@ public class RamiFieldCentric extends LinearOpMode {
             mecanisme.claw.dropConeAndKeepBeacon();
         }
         if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        if(mecanisme.lift.lift.getCurrentPosition() == 0 && mecanisme.claw.servo.getPosition() == mecanisme.claw.open) mecanisme.claw.servo.close();
+        if(mecanisme.lift.liftState == Lift.LiftState.Ground && detection.coneDetected()){
+            mecanisme.claw.servo.close();
+            gamepad1.rumble(200);
+        }
     }
 
     public void updateLift() {
@@ -94,7 +97,7 @@ public class RamiFieldCentric extends LinearOpMode {
         lastRightStickButton = gamepad1.right_stick_button;
 
         if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        mecanisme.lift.lowerIntoJunction(mecanisme.lift.lift.getCurrentPosition() > 10 && detection.junctionDetected());
+        mecanisme.lift.lowerIntoJunction(detection.junctionDetected());
 
     }
     public void updatetelemetry(){
@@ -106,7 +109,7 @@ public class RamiFieldCentric extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        while(!isStopRequested())
+        while(!isStopRequested() && opModeIsActive())
         {
             updateDrivePowers();
             updateClaw();
@@ -115,5 +118,6 @@ public class RamiFieldCentric extends LinearOpMode {
             drive.update();
             updatetelemetry();
         }
+        detection.stopCamera();
     }
 }

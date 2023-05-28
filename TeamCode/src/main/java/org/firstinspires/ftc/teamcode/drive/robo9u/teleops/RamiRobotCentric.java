@@ -73,6 +73,11 @@ public class RamiRobotCentric extends LinearOpMode {
         if(gamepad1.dpad_left || gamepad1.dpad_right){
             mecanisme.claw.dropConeAndKeepBeacon();
         }
+        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
+        if(mecanisme.lift.liftState == Lift.LiftState.Ground && detection.coneDetected()){
+            mecanisme.claw.servo.close();
+            gamepad1.rumble(200);
+        }
     }
 
     public void updateLift() {
@@ -90,7 +95,7 @@ public class RamiRobotCentric extends LinearOpMode {
         }
 
         if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        mecanisme.lift.lowerIntoJunction(mecanisme.lift.lift.getCurrentPosition() > 10 && detection.junctionDetected());
+        mecanisme.lift.lowerIntoJunction(detection.junctionDetected());
     }
     public void updatetelemetry(){
         telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
@@ -101,7 +106,7 @@ public class RamiRobotCentric extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        while(!isStopRequested())
+        while(!isStopRequested() && opModeIsActive())
         {
             updateDrivePowers();
             updateClaw();
@@ -110,5 +115,6 @@ public class RamiRobotCentric extends LinearOpMode {
             drive.update();
             updatetelemetry();
         }
+        detection.stopCamera();
     }
 }

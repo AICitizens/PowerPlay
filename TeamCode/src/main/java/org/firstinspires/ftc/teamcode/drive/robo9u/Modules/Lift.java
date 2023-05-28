@@ -15,9 +15,9 @@ public class Lift {
         Ground,
         Idle,
     }
-    LiftState liftState = LiftState.Idle;
+    public LiftState liftState = LiftState.Idle;
 
-    TouchSensor liftSensor;
+    public TouchSensor liftSensor;
     public LiftController lift;
     public FourBar fourBar;
     public static double ground = 0, low = 9, mid = 32, high = 58, stackConeDist = 3.25, stackPos;
