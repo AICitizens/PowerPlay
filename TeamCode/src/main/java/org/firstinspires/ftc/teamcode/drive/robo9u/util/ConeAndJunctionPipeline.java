@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.robo9u.util;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;

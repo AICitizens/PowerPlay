@@ -1,30 +1,45 @@
 package org.firstinspires.ftc.teamcode.drive.robo9u.teleops;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Detection;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Lift;
 import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Mechanisms;
-@Disabled
-@TeleOp(name="localiz_1_driver")
-public class test1driver extends LinearOpMode {
 
-    SampleMecanumDrive drive;
-    Mechanisms mecanisme;
+@TeleOp(name="Rami Robot-Centric")
+public class RamiRobotCentric extends LinearOpMode {
+
+    private SampleMecanumDrive drive;
+    private Mechanisms mecanisme;
+    private Detection detection;
+    private ElapsedTime runtime;
+
+    Boolean lastbutton = false;
+    double drivepow = 1;
 
     public void initialize()
     {
         drive = new SampleMecanumDrive(hardwareMap);
         mecanisme = new Mechanisms(hardwareMap);
+        detection = new Detection(hardwareMap, "Webcam 0");
+        runtime = new ElapsedTime();
+
+        drive.setPoseEstimate(SampleMecanumDrive.lastAutonomousPosition);
+        drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        mecanisme.lift.fourBar.down();
+        mecanisme.claw.Open();
     }
 
     public void updateDrivePowers()
     {
         double LF, RF, LR, RR;
         double forward, rotate, strafe, denominator;
-        double drivepow;
-        drivepow = (gamepad1.right_trigger > 0 || gamepad1.right_bumper) ? 0.6 : 0.8;
+        if(gamepad1.right_stick_button && !lastbutton) drivepow = (drivepow == 0.8)?0.6:0.8;
+        lastbutton = gamepad1.right_stick_button;
         rotate=gamepad1.right_stick_x;
         forward=-gamepad1.left_stick_y*1.1;
         strafe=gamepad1.left_stick_x;
@@ -45,36 +60,40 @@ public class test1driver extends LinearOpMode {
 
     public void updateClaw()
     {
-        if(gamepad1.b) {
+        if(gamepad1.right_bumper) {
             mecanisme.claw.Close();
-        }else if(gamepad1.x){
+        }else if(gamepad1.left_bumper){
             mecanisme.claw.Open();
         }
-        if(gamepad1.a){
+        if(gamepad1.dpad_down){
             mecanisme.lift.fourBar.down();
-        }else if(gamepad1.y) {
+        }else if(gamepad1.dpad_up) {
             mecanisme.lift.fourBar.up();
+        }
+        if(gamepad1.dpad_left || gamepad1.dpad_right){
+            mecanisme.claw.dropConeAndKeepBeacon();
         }
     }
 
     public void updateLift() {
         mecanisme.lift.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
 
-        if (gamepad1.dpad_up){ // auto control
-            mecanisme.lift.goToHigh();
-        }else if(gamepad1.dpad_left || gamepad1.dpad_right){
-            mecanisme.lift.goToHigh();
-        }else if(gamepad1.dpad_down){
-            mecanisme.lift.goToHigh();
-        }else if(gamepad1.left_bumper){
-            mecanisme.lift.retractFully();
+        if (gamepad1.a){ // auto control
+            mecanisme.lift.setLiftState(Lift.LiftState.High);
+        }else if(gamepad1.y){
+            mecanisme.lift.setLiftState(Lift.LiftState.Mid);
+        }else if(gamepad1.b){
+            mecanisme.lift.setLiftState(Lift.LiftState.Low);
+        }else if(gamepad1.x){
+            mecanisme.lift.setLiftState(Lift.LiftState.Ground);
+            mecanisme.claw.Open();
         }
+
+        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
+        mecanisme.lift.lowerIntoJunction(mecanisme.lift.lift.getCurrentPosition() > 10 && detection.junctionDetected());
     }
     public void updatetelemetry(){
-        telemetry.addData("x", drive.getPoseEstimate().getX());
-        telemetry.addData("y", drive.getPoseEstimate().getY());
-        telemetry.addData("heading", drive.getPoseEstimate().getHeading());
-        telemetry.addData("lift", mecanisme.lift.lift.getCurrentPosition());
+        telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
         telemetry.update();
     }
 
@@ -82,8 +101,6 @@ public class test1driver extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        mecanisme.lift.fourBar.down();
-        mecanisme.claw.Open();
         while(!isStopRequested())
         {
             updateDrivePowers();

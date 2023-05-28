@@ -40,11 +40,9 @@ public class Detection {
     public void setSleeveDetectionMode(){
         camera.setPipeline(sleevePipeline);
     }
-
     public void setConeAndJunctionDetectionMode(){
         camera.setPipeline(coneAndJunctionPipeline);
     }
-
     public int getParkingIndex(){
         return sleevePipeline.getSleeveIndex();
     }

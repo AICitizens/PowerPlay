@@ -4,37 +4,43 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Detection;
+import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Lift;
 import org.firstinspires.ftc.teamcode.drive.robo9u.Modules.Mechanisms;
 
-@TeleOp(name="localiz_rami_field_centric")
-public class localizramifieldcentric extends LinearOpMode {
+@TeleOp(name="Rami Field-Centric")
+public class RamiFieldCentric extends LinearOpMode {
 
+    private SampleMecanumDrive drive;
+    private Mechanisms mecanisme;
+    private Detection detection;
+    private ElapsedTime runtime;
 
-    SampleMecanumDrive drive;
-    Mechanisms mecanisme;
+    Boolean lastRightStickButton = false;
+    double drivepow = 1;
 
     public void initialize()
     {
         drive = new SampleMecanumDrive(hardwareMap);
-        drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         mecanisme = new Mechanisms(hardwareMap);
+        detection = new Detection(hardwareMap, "Webcam 0");
+        runtime = new ElapsedTime();
+
+        drive.setPoseEstimate(SampleMecanumDrive.lastAutonomousPosition);
+        drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        mecanisme.lift.fourBar.down();
+        mecanisme.claw.Open();
     }
 
-    Boolean lastRightStickButton = false;
-    double drivepow = 0.8;
     public void updateDrivePowers()
     {
-        if(gamepad1.left_stick_button){
-            drive.setPoseEstimate(new Pose2d());
-        }
-
+        if(gamepad1.left_stick_button) drive.setPoseEstimate(new Pose2d());
         double LF, RF, LR, RR;
         double forward, rotate, strafe, denominator, theta;
-        double drivepow = 0.8;
         theta = drive.getPoseEstimate().getHeading();
-
         rotate=gamepad1.right_stick_x;
         forward=-gamepad1.left_stick_y;
         strafe=gamepad1.left_stick_x;
@@ -42,20 +48,12 @@ public class localizramifieldcentric extends LinearOpMode {
         double oldstr = strafe;
         forward = oldfw * Math.cos(theta) - oldstr * Math.sin(theta);
         strafe = oldfw * Math.sin(theta) + oldstr * Math.cos(theta);
-
         denominator = Math.max(1,Math.abs(forward)+Math.abs(strafe)+Math.abs(rotate)) ;
         LF = (strafe+forward+rotate)/denominator*drivepow;
         RF = (-strafe+forward-rotate)/denominator*drivepow;
         LR = (-strafe+forward+rotate)/denominator*drivepow;
         RR = (strafe+forward-rotate)/denominator*drivepow;
-        setMotorPowers(LF, LR, RR, RF);
-    }
-
-    public void setMotorPowers(double v, double v1, double v2, double v3) {
-        drive.leftFront.setPower(v);
-        drive.leftRear.setPower(v1);
-        drive.rightRear.setPower(v2);
-        drive.rightFront.setPower(v3);
+        drive.setMotorPowers(LF, LR, RR, RF);
     }
 
     public void updateClaw()
@@ -73,19 +71,20 @@ public class localizramifieldcentric extends LinearOpMode {
         if(gamepad1.dpad_left || gamepad1.dpad_right){
             mecanisme.claw.dropConeAndKeepBeacon();
         }
+        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
+        if(mecanisme.lift.lift.getCurrentPosition() == 0 && mecanisme.claw.servo.getPosition() == mecanisme.claw.open) mecanisme.claw.servo.close();
     }
 
     public void updateLift() {
         mecanisme.lift.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-
         if (gamepad1.a){ // auto control
-            mecanisme.lift.goToHigh();
+            mecanisme.lift.setLiftState(Lift.LiftState.High);
         }else if(gamepad1.y){
-            mecanisme.lift.goToMid();
+            mecanisme.lift.setLiftState(Lift.LiftState.Mid);
         }else if(gamepad1.b){
-            mecanisme.lift.goToLow();
+            mecanisme.lift.setLiftState(Lift.LiftState.Low);
         }else if(gamepad1.x){
-            mecanisme.lift.retractFully();
+            mecanisme.lift.setLiftState(Lift.LiftState.Ground);
             mecanisme.claw.Open();
         }
         if(gamepad1.right_stick_button && !lastRightStickButton) {
@@ -93,12 +92,13 @@ public class localizramifieldcentric extends LinearOpMode {
             mecanisme.claw.Open();
         }
         lastRightStickButton = gamepad1.right_stick_button;
+
+        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
+        mecanisme.lift.lowerIntoJunction(mecanisme.lift.lift.getCurrentPosition() > 10 && detection.junctionDetected());
+
     }
     public void updatetelemetry(){
-        telemetry.addData("x", drive.getPoseEstimate().getX());
-        telemetry.addData("y", drive.getPoseEstimate().getY());
-        telemetry.addData("heading", drive.getPoseEstimate().getHeading());
-        telemetry.addData("lift", mecanisme.lift.lift.getCurrentPosition());
+        telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
         telemetry.update();
     }
 
@@ -106,8 +106,6 @@ public class localizramifieldcentric extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         initialize();
         waitForStart();
-        mecanisme.lift.fourBar.down();
-        mecanisme.claw.Open();
         while(!isStopRequested())
         {
             updateDrivePowers();
