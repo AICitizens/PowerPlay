@@ -16,7 +16,6 @@ public class RamiFieldCentric extends LinearOpMode {
 
     private SampleMecanumDrive drive;
     private Mechanisms mecanisme;
-    private Detection detection;
     private ElapsedTime runtime;
 
     Boolean lastRightStickButton = false;
@@ -26,7 +25,6 @@ public class RamiFieldCentric extends LinearOpMode {
     {
         drive = new SampleMecanumDrive(hardwareMap);
         mecanisme = new Mechanisms(hardwareMap);
-        detection = new Detection(hardwareMap, "Webcam 0");
         runtime = new ElapsedTime();
 
         drive.setPoseEstimate(SampleMecanumDrive.lastAutonomousPosition);
@@ -71,11 +69,6 @@ public class RamiFieldCentric extends LinearOpMode {
         if(gamepad1.dpad_left || gamepad1.dpad_right){
             mecanisme.claw.dropConeAndKeepBeacon();
         }
-        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        if(mecanisme.lift.liftState == Lift.LiftState.Ground && detection.coneDetected()){
-            mecanisme.claw.servo.close();
-            gamepad1.rumble(200);
-        }
     }
 
     public void updateLift() {
@@ -96,12 +89,10 @@ public class RamiFieldCentric extends LinearOpMode {
         }
         lastRightStickButton = gamepad1.right_stick_button;
 
-        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        mecanisme.lift.lowerIntoJunction(detection.junctionDetected());
-
     }
     public void updatetelemetry(){
-        telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
+        telemetry.addLine("Running at " + 1e9/runtime.nanoseconds() + "hz");
+        runtime.reset();
         telemetry.update();
     }
 
@@ -118,6 +109,5 @@ public class RamiFieldCentric extends LinearOpMode {
             drive.update();
             updatetelemetry();
         }
-        detection.stopCamera();
     }
 }

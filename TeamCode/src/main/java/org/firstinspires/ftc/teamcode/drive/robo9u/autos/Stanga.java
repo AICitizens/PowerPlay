@@ -123,7 +123,8 @@ public class Stanga extends LinearOpMode {
                     }
                     break;
             }
-            telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
+            telemetry.addLine("Running at " + 1e9/runtime.nanoseconds() + "hz");
+            runtime.reset();
             telemetry.addLine(conesPlaced + " cones placed");
             telemetry.update();
             mecanisme.update();

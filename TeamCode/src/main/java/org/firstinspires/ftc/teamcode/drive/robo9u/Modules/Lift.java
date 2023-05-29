@@ -20,10 +20,11 @@ public class Lift {
     public TouchSensor liftSensor;
     public LiftController lift;
     public FourBar fourBar;
-    public static double ground = 0, low = 9, mid = 32, high = 58, stackConeDist = 3.25, stackPos;
+    public static double ground = 0, low = 20, mid = 45 , high = 70, stackConeDist = 3.25, stackPos;
+
+    private boolean manualControl = false;
 
     private boolean canStop = false;
-    private boolean lowerInto = false;
 
     public void stopCurrentTrajectory(){
         lift.stop();
@@ -34,17 +35,18 @@ public class Lift {
         liftState = state;
     }
 
-    public void lowerIntoJunction(boolean bool){
-        lowerInto = bool;
-    }
-
     public void setPower(double power){
+        manualControl = false;
         if (lift.isBusy()) return; // nu interfera cu traiectorii
+        if(power==0) return;
         liftState = LiftState.Idle;
-        lift.setPower(lift.getCurrentPosition()<=0?Math.max(power, 0):power);
+        manualControl = true;
+        lift.setPower(liftSensor.isPressed()?Math.max(power, 0):power);
+        lift.stop();
     }
 
     public void nextStack(){
+        liftState = LiftState.Idle;
         fourBar.down();
         if(stackPos == -1)
             stackPos = 4;
@@ -55,16 +57,20 @@ public class Lift {
     public void update(){
         switch (liftState){
             case High:
-                lift.setTarget(high+ground-(lowerInto?5:0));
+                lift.setTarget(high+ground);
+                fourBar.up();
                 break;
             case Mid:
-                lift.setTarget(mid+ground-(lowerInto?5:0));
+                lift.setTarget(mid+ground);
+                fourBar.up();
                 break;
             case Low:
-                lift.setTarget(low+ground-(lowerInto?5:0));
+                lift.setTarget(low+ground);
+                fourBar.up();
                 break;
             case Ground:
                 lift.setTarget(ground);
+                fourBar.down();
                 break;
             case Idle:
                 break;
@@ -73,13 +79,15 @@ public class Lift {
             if (canStop) {
                 lift.stop();
                 canStop = false;
+                ground = lift.getCurrentPosition();
             }
         }
-        if(liftState != LiftState.Idle) lift.update();
+        if(!manualControl)
+            lift.update();
     }
 
     public Lift(HardwareMap hw){
-        lift = new LiftController(hw);
+        lift = new LiftController(hw, true);
         fourBar = new FourBar(hw);
         liftSensor = hw.get(TouchSensor.class, "senzoratingere");
         stackPos = 4;

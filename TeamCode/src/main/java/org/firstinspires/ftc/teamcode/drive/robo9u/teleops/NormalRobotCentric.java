@@ -15,7 +15,6 @@ public class NormalRobotCentric extends LinearOpMode {
 
     private SampleMecanumDrive drive;
     private Mechanisms mecanisme;
-    private Detection detection;
     private ElapsedTime runtime;
 
     double drivepow = 0.8;
@@ -24,7 +23,6 @@ public class NormalRobotCentric extends LinearOpMode {
     {
         drive = new SampleMecanumDrive(hardwareMap);
         mecanisme = new Mechanisms(hardwareMap);
-        detection = new Detection(hardwareMap, "Webcam 0");
         runtime = new ElapsedTime();
 
         drive.setPoseEstimate(SampleMecanumDrive.lastAutonomousPosition);
@@ -68,11 +66,6 @@ public class NormalRobotCentric extends LinearOpMode {
         }else if(gamepad2.y){
             mecanisme.lift.fourBar.up();
         }
-        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        if(mecanisme.lift.liftState == Lift.LiftState.Ground && detection.coneDetected()){
-            mecanisme.claw.servo.close();
-            gamepad2.rumble(200);
-        }
     }
     public void updateLift() {
         mecanisme.lift.setPower(gamepad1.left_trigger - gamepad1.right_trigger);
@@ -88,13 +81,11 @@ public class NormalRobotCentric extends LinearOpMode {
         }else if(gamepad2.right_bumper){
             mecanisme.lift.stopCurrentTrajectory();
         }
-
-        if(mecanisme.lift.lift.isBusy()) return; // nu interfera cu liftul
-        mecanisme.lift.lowerIntoJunction(detection.junctionDetected());
     }
 
     public void updatetelemetry(){
-        telemetry.addLine("Running at " + 1e6/runtime.nanoseconds() + "hz");
+        telemetry.addLine("Running at " + 1e9/runtime.nanoseconds() + "hz");
+        runtime.reset();
         telemetry.update();
     }
 
@@ -111,6 +102,5 @@ public class NormalRobotCentric extends LinearOpMode {
             drive.update();
             updatetelemetry();
         }
-        detection.stopCamera();
     }
 }

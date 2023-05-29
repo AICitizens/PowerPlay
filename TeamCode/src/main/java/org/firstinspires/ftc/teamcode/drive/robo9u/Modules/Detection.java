@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.drive.robo9u.Modules;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.drive.robo9u.util.ConeAndJunctionPipeline;
 import org.firstinspires.ftc.teamcode.drive.robo9u.util.SleevePipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -14,11 +13,9 @@ public class Detection {
     private OpenCvCamera camera;
 
     private SleevePipeline sleevePipeline;
-    private ConeAndJunctionPipeline coneAndJunctionPipeline;
 
     public Detection(HardwareMap hardwareMap, String webcamName){
         sleevePipeline = new SleevePipeline();
-        coneAndJunctionPipeline = new ConeAndJunctionPipeline();
         setup(hardwareMap, webcamName);
     }
 
@@ -34,23 +31,14 @@ public class Detection {
             public void onError( int errorCode ) {
             }
         });
-        setConeAndJunctionDetectionMode();
+        setSleeveDetectionMode();
     }
 
     public void setSleeveDetectionMode(){
         camera.setPipeline(sleevePipeline);
     }
-    public void setConeAndJunctionDetectionMode(){
-        camera.setPipeline(coneAndJunctionPipeline);
-    }
     public int getParkingIndex(){
         return sleevePipeline.getSleeveIndex();
-    }
-    public boolean coneDetected(){
-        return coneAndJunctionPipeline.coneDetected();
-    }
-    public boolean junctionDetected(){
-        return coneAndJunctionPipeline.junctionDetected();
     }
     public void stopCamera(){
         camera.stopStreaming();

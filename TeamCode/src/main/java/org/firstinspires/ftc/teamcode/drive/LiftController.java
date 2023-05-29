@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -12,9 +13,9 @@ public class LiftController {
     private PIDFController controller;
 
     public static final double TICKS_PER_REV = 537.7;
-    public static double WHEEL_RADIUS = 3.565; // cm
-    public static double GEAR_RATIO = 2; // output (wheel) speed / input (motor) speed
-    public static double kp = 0, ki = 0, kd = 0, ff = 0, relativeP = 0;
+    public static double WHEEL_RADIUS = 3.565/2; // cm
+    public static double GEAR_RATIO = 1.64; // output (wheel) speed / input (motor) speed
+    public static double kp = 0.01, ki = 0, kd = 0, ff = 0.000035, relativeP = 0.0005;
     public static double target = 0; //ticks
 
     private boolean canOverride = true;
@@ -23,13 +24,18 @@ public class LiftController {
 
     public DcMotorEx left, right;
 
-    public LiftController(HardwareMap hw) {
+    public LiftController(HardwareMap hw, boolean resetEncoders) {
         controller = new PIDFController(kp, ki, kd, ff);
         controller.setTolerance(20);
 
         left = hw.get(DcMotorEx.class, "liftLeft");
         right = hw.get(DcMotorEx.class, "liftRight");
         left.setDirection(DcMotorEx.Direction.REVERSE);
+        if(!resetEncoders) return;
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public boolean isBusy(){
