@@ -20,15 +20,12 @@ public class Lift {
     public TouchSensor liftSensor;
     public LiftController lift;
     public FourBar fourBar;
-    public static double ground = 0, low = 20, mid = 45 , high = 70, stackConeDist = 3.25, stackPos;
+    public static double ground = 0, low = 24, mid = 47 , high = 72, stackConeDist = 3.25, stackPos;
 
     private boolean manualControl = false;
 
-    private boolean canStop = false;
-
     public void stopCurrentTrajectory(){
         lift.stop();
-        canStop = false;
     }
 
     public void setLiftState(LiftState state){
@@ -76,11 +73,9 @@ public class Lift {
                 break;
         }
         if(liftSensor.isPressed()){
-            if (canStop) {
-                lift.stop();
-                canStop = false;
-                ground = lift.getCurrentPosition();
-            }
+                if(liftState == LiftState.Idle)
+                    lift.stop();
+                ground = LiftController.encoderTicksToCM(lift.getCurrentPosition());
         }
         if(!manualControl)
             lift.update();

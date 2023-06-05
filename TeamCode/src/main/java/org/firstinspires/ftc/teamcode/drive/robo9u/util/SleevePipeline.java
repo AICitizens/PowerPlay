@@ -39,13 +39,13 @@ public class SleevePipeline extends OpenCvPipeline {
         Scalar sumColors = Core.sumElems(areaMat);
         double minColor = Math.min(sumColors.val[0], Math.min(sumColors.val[1], sumColors.val[2]));
         if (sumColors.val[0] == minColor) {//red is minimum
-            sleeveIndex = 2;
+            sleeveIndex = 1;
             Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, CYAN, 2);
         } else if (sumColors.val[1] == minColor) {//blue is minimum
-            sleeveIndex = 1;
+            sleeveIndex = 0;
             Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, MAGENTA, 2);
         } else {//yellow is minimum
-            sleeveIndex = 3;
+            sleeveIndex = 2;
             Imgproc.rectangle(input, sleeve_pointA, sleeve_pointB, YELLOW, 2);
         }
         areaMat.release();

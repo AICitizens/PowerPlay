@@ -18,28 +18,14 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 @Autonomous(group="Demo", preselectTeleOp = "localiz_rami_field_centric")
 public class Stanga extends LinearOpMode {
 
-    private enum RobotState{
-        ROBOT_INIT, // robot -> peste junction cu preload
-        ROBOT_PLACE, // robot -> pune con si se duce la stack
-        ROBOT_STACK, // robot -> ia din stack si se duce la junction sau parcheaza
-        ROBOT_FINISH
-    }
-
     private Mechanisms mecanisme;
     private SampleMecanumDrive drive;
     private Detection detection;
-
-    private TrajectorySequence gotoMidfromPreload;
-    private Trajectory gotoStackfromMid, gotoMidfromStack;
+    private TrajectorySequence full;
     private Trajectory[] gotoPark = new Trajectory[3];
-
-    public static double preloadPoseX = 41.5, preloadPoseY = 4.5, preloadPoseHeading = -90;
-    public static double junctionPoseX = 53, junctionPoseY = -6.5, junctionPoseHeading = -170;
-    public static double stackPoseX = 53.5, stackPoseY = 30.5, stackPoseHeading = -270;
     public static double corectieeroarex = 1.5, corectieeroarey = 0.35;
     public static int gripTime = 300;
-
-    RobotState currentState;
+    boolean hasParked = false;
 
     int conesPlaced = 0;
     int parkingIndex = 1;
@@ -56,72 +42,44 @@ public class Stanga extends LinearOpMode {
         timer = new ElapsedTime();
 
         detection.setSleeveDetectionMode();
-        currentState = RobotState.ROBOT_INIT;
-        drive.setPoseEstimate(new Pose2d(0, 0, 0)); //0.5 la natio
 
-        gotoMidfromPreload = drive.trajectorySequenceBuilder(new Pose2d())
-                .splineToSplineHeading(new Pose2d(preloadPoseX, preloadPoseY, Math.toRadians(preloadPoseHeading)), Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(junctionPoseX, junctionPoseY, Math.toRadians(junctionPoseHeading)), Math.toRadians(-90)).build();
-        gotoStackfromMid = drive.trajectoryBuilder(gotoMidfromPreload.end()).lineToLinearHeading(new Pose2d(stackPoseX, stackPoseY, Math.toRadians(stackPoseHeading))).build();
-        gotoMidfromStack = drive.trajectoryBuilder(gotoStackfromMid.end()).lineToLinearHeading(new Pose2d(junctionPoseX, junctionPoseY, Math.toRadians(junctionPoseHeading))).build();
-        gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52, -23, Math.toRadians(-270))).build();
-        gotoPark[1] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(50,  0, Math.toRadians(0))).build();
-        gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52.5, 24, Math.toRadians(-270))).build();
+
+
+        full = drive.trajectorySequenceBuilder(new Pose2d(-34.58, -62.28, Math.toRadians(89.57)))
+                .splineTo(new Vector2d(-29.05, -9.54), Math.toRadians(62.18))
+                .addSpatialMarker(new Vector2d(-29.05, -9.54), ()->mecanisme.lift.setLiftState(Lift.LiftState.Ground))
+                .waitSeconds(1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(-36.47, -15.22, Math.toRadians(171.33)), Math.toRadians(171.33))
+                .setReversed(false)
+                .splineToSplineHeading(new Pose2d(-59.92, -12.01, Math.toRadians(179.14)), Math.toRadians(179.14))
+                .addSpatialMarker(new Vector2d(-59.92, -12.01), ()->{mecanisme.claw.Close();  mecanisme.lift.setLiftState(Lift.LiftState.High);})
+                .waitSeconds(1)
+                .setReversed(true)
+                .splineToSplineHeading(new Pose2d(-27.88, -9.25, Math.toRadians(59.66)), Math.toRadians(59.66))
+                .addSpatialMarker(new Vector2d(-27.88, -9.25), ()->mecanisme.lift.setLiftState(Lift.LiftState.Ground))
+                .waitSeconds(1)
+                .setReversed(false)
+                .build();
+        drive.setPoseEstimate(full.start());
+        gotoPark[0] = drive.trajectoryBuilder(full.end()).lineToLinearHeading(new Pose2d(52, -23, Math.toRadians(-270))).build();
+        gotoPark[1] = drive.trajectoryBuilder(full.end()).lineToLinearHeading(new Pose2d(50,  0, Math.toRadians(0))).build();
+        gotoPark[2] = drive.trajectoryBuilder(full.end()).lineToLinearHeading(new Pose2d(52.5, 24, Math.toRadians(-270))).build();
     }
-
 
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
-
         waitForStart();
+        mecanisme.claw.Close();
+        sleep(250);
+        mecanisme.lift.setLiftState(Lift.LiftState.High);
+        drive.followTrajectorySequenceAsync(full);
         parkingIndex = detection.getParkingIndex();
-        timer.reset();
         while(!isStopRequested() && opModeIsActive()) {
-            runtime.reset();
-            switch (currentState) {
-                case ROBOT_INIT:
-                    mecanisme.claw.Close();
-                    mecanisme.lift.setLiftState(Lift.LiftState.Mid);
-                    drive.followTrajectorySequenceAsync(gotoMidfromPreload);
-                    currentState = RobotState.ROBOT_PLACE;
-                    break;
-                case ROBOT_PLACE:
-                    if(!mecanisme.lift.lift.isBusy() && !drive.isBusy()) {
-                        mecanisme.claw.Open();
-                        mecanisme.lift.fourBar.down();
-                        if (timer.milliseconds() >= gripTime) {
-                            conesPlaced += 1;
-                            drive.setPoseEstimate(new Pose2d(drive.getPoseEstimate().getX() + corectieeroarex, drive.getPoseEstimate().getY() + corectieeroarey, drive.getPoseEstimate().getHeading()));
-                            if(conesPlaced < 6){
-                                drive.followTrajectoryAsync(gotoStackfromMid);
-                                mecanisme.lift.nextStack();
-                                currentState = RobotState.ROBOT_STACK;
-                            }else{
-                                mecanisme.lift.setLiftState(Lift.LiftState.Ground);
-                                drive.followTrajectoryAsync(gotoPark[parkingIndex]);
-                                currentState = RobotState.ROBOT_FINISH;
-                            }
-                            timer.reset();
-                        }
-                    }else{
-                        timer.reset();
-                    }
-                    break;
-                case ROBOT_STACK:
-                    if(!drive.isBusy() && !mecanisme.lift.lift.isBusy()){
-                        mecanisme.claw.Close();
-                        if(timer.milliseconds() >= gripTime){
-                            mecanisme.lift.fourBar.servo.setPosition(0.6);
-                            drive.followTrajectoryAsync(gotoMidfromStack);
-                            mecanisme.lift.setLiftState(Lift.LiftState.Mid);
-                            currentState = RobotState.ROBOT_PLACE;
-                            timer.reset();
-                        }
-                    }else{
-                        timer.reset();
-                    }
-                    break;
+            if(!drive.isBusy() && !hasParked){
+                hasParked = true;
+                //drive.followTrajectoryAsync(gotoPark[parkingIndex]);
             }
             telemetry.addLine("Running at " + 1e9/runtime.nanoseconds() + "hz");
             runtime.reset();
