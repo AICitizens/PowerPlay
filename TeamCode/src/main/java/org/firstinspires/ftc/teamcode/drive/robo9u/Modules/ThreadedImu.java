@@ -29,10 +29,10 @@ public class ThreadedImu {
     public void startImuThread(LinearOpMode opMode){
         new Thread(()->{
             while(!opMode.isStopRequested() && opMode.opModeIsActive())
-                synchronized (imuLock){
-                    imuYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-                    imuYawVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
-                }
+           synchronized (imuLock){
+               imuYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+               imuYawVelocity = imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+           }
         });
     }
     public double getHeading(){
