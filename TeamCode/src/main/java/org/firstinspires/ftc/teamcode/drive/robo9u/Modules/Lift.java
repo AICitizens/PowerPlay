@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive.robo9u.Modules;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.LiftController;
 
@@ -13,14 +14,17 @@ public class Lift {
         Mid,
         Low,
         Ground,
+        STACK,
         Idle,
     }
     public LiftState liftState = LiftState.Idle;
 
+    private ElapsedTime fourbarTimer;
+
     public TouchSensor liftSensor;
     public LiftController lift;
     public FourBar fourBar;
-    public static double ground = 0, low = 24, mid = 47 , high = 72, stackConeDist = 3.25, stackPos;
+    public static double ground = 0, low = 23, mid = 46 , high = 71, stackConeDist = 3.25, stackPos;
 
     private boolean manualControl = false;
 
@@ -30,6 +34,7 @@ public class Lift {
 
     public void setLiftState(LiftState state){
         liftState = state;
+        fourbarTimer.reset();
     }
 
     public void setPower(double power){
@@ -43,30 +48,35 @@ public class Lift {
     }
 
     public void nextStack(){
-        liftState = LiftState.Idle;
-        fourBar.down();
-        if(stackPos == -1)
-            stackPos = 4;
-        lift.setTarget(stackConeDist*stackPos + 0.5+ground);
+        if(stackPos == 0)
+            stackPos = 5;
         stackPos -=1;
+        liftState = LiftState.STACK;
     }
 
     public void update(){
         switch (liftState){
             case High:
                 lift.setTarget(high+ground);
-                fourBar.up();
+                if(fourbarTimer.milliseconds()>=125)
+                    fourBar.up();
                 break;
             case Mid:
                 lift.setTarget(mid+ground);
-                fourBar.up();
+                if(fourbarTimer.milliseconds()>=125)
+                    fourBar.up();
                 break;
             case Low:
                 lift.setTarget(low+ground);
-                fourBar.up();
+                if(fourbarTimer.milliseconds()>=125)
+                    fourBar.up();
                 break;
             case Ground:
                 lift.setTarget(ground);
+                fourBar.down();
+                break;
+            case STACK:
+                lift.setTarget(stackConeDist*stackPos + 0.2+ground);
                 fourBar.down();
                 break;
             case Idle:
@@ -85,6 +95,8 @@ public class Lift {
         lift = new LiftController(hw, true);
         fourBar = new FourBar(hw);
         liftSensor = hw.get(TouchSensor.class, "senzoratingere");
-        stackPos = 4;
+        stackPos = 5;
+        fourbarTimer = new ElapsedTime();
+        fourbarTimer.reset();
     }
 }

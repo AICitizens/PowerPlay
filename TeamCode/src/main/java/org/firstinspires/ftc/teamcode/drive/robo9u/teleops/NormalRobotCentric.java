@@ -21,6 +21,8 @@ public class NormalRobotCentric extends LinearOpMode {
 
     public void initialize() 
     {
+        
+
         drive = new SampleMecanumDrive(hardwareMap);
         mecanisme = new Mechanisms(hardwareMap);
         runtime = new ElapsedTime();

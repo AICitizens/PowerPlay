@@ -23,7 +23,9 @@ public class motortest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        SampleMecanumDrive 
+
+drive = new SampleMecanumDrive(hardwareMap);;;
 
         waitForStart();
 
