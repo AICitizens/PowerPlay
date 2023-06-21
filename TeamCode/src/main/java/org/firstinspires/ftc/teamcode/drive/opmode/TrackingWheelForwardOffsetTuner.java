@@ -47,7 +47,7 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
 
         SampleMecanumDrive 
 
-drive = new SampleMecanumDrive(hardwareMap);;;
+drive = new SampleMecanumDrive(hardwareMap, this);
 
         if (!(drive.getLocalizer() instanceof StandardTrackingWheelLocalizer)) {
             RobotLog.setGlobalErrorMsg("StandardTrackingWheelLocalizer is not being set in the "

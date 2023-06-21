@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive.robo9u.teleops;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.outoftheboxrobotics.photoncore.PhotonCore;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -32,6 +34,11 @@ public class NormalFieldCentric extends LinearOpMode {
         drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         mecanisme.lift.fourBar.down();
         mecanisme.claw.Open();
+
+        PhotonCore.CONTROL_HUB.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        PhotonCore.experimental.setMaximumParallelCommands(8);
+        PhotonCore.enable();
+        PhotonCore.CONTROL_HUB.clearBulkCache();
     }
 
     public void updateDrivePowers()
@@ -96,6 +103,7 @@ public class NormalFieldCentric extends LinearOpMode {
         waitForStart();
         while(!isStopRequested() && opModeIsActive())
         {
+            PhotonCore.CONTROL_HUB.clearBulkCache();
             updateDrivePowers();
             updateClaw();
             updateLift();

@@ -25,7 +25,7 @@ public class motortest extends LinearOpMode {
 
         SampleMecanumDrive 
 
-drive = new SampleMecanumDrive(hardwareMap);;;
+drive = new SampleMecanumDrive(hardwareMap, this);
 
         waitForStart();
 

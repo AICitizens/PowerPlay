@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.outoftheboxrobotics.photoncore.PhotonCore;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -65,6 +67,11 @@ public class Stanga extends LinearOpMode {
         gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, 23, Math.toRadians(-180))).build();
         gotoPark[1] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53,  -2, Math.toRadians(-180))).build();
         gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, -24, Math.toRadians(-180))).build();
+
+        PhotonCore.CONTROL_HUB.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        PhotonCore.experimental.setMaximumParallelCommands(8);
+        PhotonCore.enable();
+        PhotonCore.CONTROL_HUB.clearBulkCache();
     }
 
 
@@ -77,6 +84,7 @@ public class Stanga extends LinearOpMode {
         runtime.reset();
         timer.reset();
         while(!isStopRequested() && opModeIsActive()) {
+            PhotonCore.CONTROL_HUB.clearBulkCache();
             switch (currentState) {
                 case ROBOT_INIT:
                     mecanisme.claw.Close();

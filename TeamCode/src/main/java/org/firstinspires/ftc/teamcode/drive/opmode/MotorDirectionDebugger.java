@@ -50,7 +50,7 @@ public class MotorDirectionDebugger extends LinearOpMode {
 
         SampleMecanumDrive 
 
-drive = new SampleMecanumDrive(hardwareMap);;;
+drive = new SampleMecanumDrive(hardwareMap, this);
 
         telemetry.addLine("Press play to begin the debugging opmode");
         telemetry.update();
