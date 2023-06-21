@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
     double drivepow = 1;
 
     public void initialize() {
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new SampleMecanumDrive(hardwareMap, this);
         drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 

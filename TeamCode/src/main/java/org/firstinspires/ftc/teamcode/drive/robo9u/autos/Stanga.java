@@ -44,7 +44,7 @@ public class Stanga extends LinearOpMode {
 
     public void initialize()
     {
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new SampleMecanumDrive(hardwareMap, this);
         mecanisme = new Mechanisms(hardwareMap);
         detection = new Detection(hardwareMap, "Webcam 0");
         runtime = new ElapsedTime();
@@ -64,7 +64,7 @@ public class Stanga extends LinearOpMode {
 
         gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, 23, Math.toRadians(-180))).build();
         gotoPark[1] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53,  -2, Math.toRadians(-180))).build();
-        gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, -624, Math.toRadians(-180))).build();
+        gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, -24, Math.toRadians(-180))).build();
     }
 
 
