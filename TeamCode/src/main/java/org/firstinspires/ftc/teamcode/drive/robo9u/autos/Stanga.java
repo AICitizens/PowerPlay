@@ -35,11 +35,11 @@ public class Stanga extends LinearOpMode {
     TrajectorySequence gotoMidfromPreload;
     Trajectory gotoStackfromMid, gotoMidfromStack;
     Trajectory[] gotoPark = new Trajectory[3];
-    public static double corectieeroarex = 1.45, corectieeroarey = 0;
+    public static double corectieeroarex = 1.9, corectieeroarey = 0.45;
 
     public static double gripTime = 350;
 
-    int conesPlaced = 1;
+    int conesPlaced = 0;
 
     private ElapsedTime timer;
     private ElapsedTime runtime;
@@ -56,18 +56,18 @@ public class Stanga extends LinearOpMode {
 
         gotoMidfromPreload = drive.trajectorySequenceBuilder(new Pose2d())
                 .lineToSplineHeading(new Pose2d(40, 4, Math.toRadians(-90)))
-                .splineTo(new Vector2d(53, -10), Math.toRadians(-90))
+                .splineTo(new Vector2d(52.5, -8.5), Math.toRadians(-90))
                 .build();
         gotoStackfromMid = drive.trajectoryBuilder(gotoMidfromPreload.end())
-                .lineToSplineHeading(new Pose2d(53, 28.5, Math.toRadians(-270)))
+                .lineToSplineHeading(new Pose2d(52.5, 28.5, Math.toRadians(-270)))
                 .build();
         gotoMidfromStack = drive.trajectoryBuilder(gotoStackfromMid.end())
-                .lineToSplineHeading(new Pose2d(53, -10, Math.toRadians(-180)))
+                .lineToSplineHeading(new Pose2d(52.5, -8.5, Math.toRadians(-180)))
                 .build();
 
-        gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, 23, Math.toRadians(-180))).build();
-        gotoPark[1] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53,  -2, Math.toRadians(-180))).build();
-        gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(53, -24, Math.toRadians(-180))).build();
+        gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52.5, 28, Math.toRadians(-180))).build();
+        gotoPark[1] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52.5,  -2, Math.toRadians(-180))).build();
+        gotoPark[2] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52.5, -24, Math.toRadians(-180))).build();
 
         PhotonCore.CONTROL_HUB.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         PhotonCore.experimental.setMaximumParallelCommands(8);
