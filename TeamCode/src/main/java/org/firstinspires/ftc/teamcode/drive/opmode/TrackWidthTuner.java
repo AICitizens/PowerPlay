@@ -36,7 +36,8 @@ public class TrackWidthTuner extends LinearOpMode {
 
         SampleMecanumDrive 
 
-drive = new SampleMecanumDrive(hardwareMap, this);
+drive = new SampleMecanumDrive(hardwareMap);
+drive.imu.startImuThread(this);
         // TODO: if you haven't already, set the localizer to something that doesn't depend on
         // drive encoders for computing the heading
 

@@ -46,7 +46,8 @@ public class Stanga extends LinearOpMode {
 
     public void initialize()
     {
-        drive = new SampleMecanumDrive(hardwareMap, this);
+        drive = new SampleMecanumDrive(hardwareMap);
+        drive.imu.startImuThread(this);
         mecanisme = new Mechanisms(hardwareMap);
         detection = new Detection(hardwareMap, "Webcam 0");
         runtime = new ElapsedTime();

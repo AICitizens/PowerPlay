@@ -75,7 +75,8 @@ public class DriveVelocityPIDTuner extends LinearOpMode {
 
         SampleMecanumDrive 
 
-drive = new SampleMecanumDrive(hardwareMap, this);
+drive = new SampleMecanumDrive(hardwareMap);
+drive.imu.startImuThread(this);
 
         Mode mode = Mode.TUNING_MODE;
 

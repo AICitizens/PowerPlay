@@ -25,7 +25,8 @@ public class NormalRobotCentric extends LinearOpMode {
     {
         
 
-        drive = new SampleMecanumDrive(hardwareMap, this);
+        drive = new SampleMecanumDrive(hardwareMap);
+        drive.imu.startImuThread(this);
         mecanisme = new Mechanisms(hardwareMap);
         runtime = new ElapsedTime();
 

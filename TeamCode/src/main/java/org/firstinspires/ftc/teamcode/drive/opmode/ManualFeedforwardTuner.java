@@ -73,7 +73,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         
 
-drive = new SampleMecanumDrive(hardwareMap, this);
+drive = new SampleMecanumDrive(hardwareMap);
+drive.imu.startImuThread(this);
 
         mode = Mode.TUNING_MODE;
 

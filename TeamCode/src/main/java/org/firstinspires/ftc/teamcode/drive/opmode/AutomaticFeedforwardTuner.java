@@ -49,7 +49,8 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
 
         SampleMecanumDrive 
 
-        drive = new SampleMecanumDrive(hardwareMap, this);
+        drive = new SampleMecanumDrive(hardwareMap);
+        drive.imu.startImuThread(this);
 
         NanoClock clock = NanoClock.system();
 
