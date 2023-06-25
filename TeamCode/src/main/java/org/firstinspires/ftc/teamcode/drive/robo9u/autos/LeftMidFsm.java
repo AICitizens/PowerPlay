@@ -35,7 +35,10 @@ public class LeftMidFsm extends LinearOpMode {
     TrajectorySequence gotoMidfromPreload;
     Trajectory gotoStackfromMid, gotoMidfromStack;
     Trajectory[] gotoPark = new Trajectory[3];
-    public static double corectieeroarex = 1.9, corectieeroarey = 0.45;
+    public static double averageXError = -1.9, averageYError = -0.45;
+    public static double junctionX = 52.5, junctionY = -8.5, junctionHeading = -180;
+    public static double stackX = 52.5, stackY = 28.5, stackHeading = -270;
+    private Pose2d averageErrorPose = new Pose2d(averageXError, averageYError, 0);
 
     public static double gripTime = 350;
 
@@ -56,13 +59,13 @@ public class LeftMidFsm extends LinearOpMode {
 
         gotoMidfromPreload = drive.trajectorySequenceBuilder(new Pose2d())
                 .lineToSplineHeading(new Pose2d(40, 4, Math.toRadians(-90)))
-                .splineTo(new Vector2d(52.5, -8.5), Math.toRadians(-90))
+                .splineTo(new Vector2d(junctionX, junctionY), Math.toRadians(-90))
                 .build();
         gotoStackfromMid = drive.trajectoryBuilder(gotoMidfromPreload.end())
-                .lineToSplineHeading(new Pose2d(52.5, 28.5, Math.toRadians(-270)))
+                .lineToSplineHeading(new Pose2d(stackX, stackY, Math.toRadians(stackHeading)))
                 .build();
         gotoMidfromStack = drive.trajectoryBuilder(gotoStackfromMid.end())
-                .lineToSplineHeading(new Pose2d(52.5, -8.5, Math.toRadians(-180)))
+                .lineToSplineHeading(new Pose2d(junctionX, junctionY, Math.toRadians(junctionHeading)))
                 .build();
 
         gotoPark[0] = drive.trajectoryBuilder(gotoMidfromStack.end()).lineToLinearHeading(new Pose2d(52.5, 28, Math.toRadians(-180))).build();
@@ -102,7 +105,7 @@ public class LeftMidFsm extends LinearOpMode {
                         mecanisme.lift.fourBar.down();
                         if (timer.milliseconds() >= gripTime) {
                             conesPlaced += 1;
-                            drive.setPoseEstimate(drive.getPoseEstimate().plus(new Pose2d(corectieeroarex, corectieeroarey, 0)));
+                            drive.setPoseEstimate(drive.getPoseEstimate().minus(averageErrorPose));
                             if(conesPlaced < 6){
                                 drive.followTrajectoryAsync(gotoStackfromMid);
                                 mecanisme.lift.nextStack();
