@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Config
 @Autonomous(group="Demo", preselectTeleOp = "localiz_rami_field_centric")
-public class Stanga extends LinearOpMode {
+public class LeftMidFsm extends LinearOpMode {
 
     public enum RobotState{
         ROBOT_INIT, // robot -> peste junction cu preload
@@ -102,7 +102,7 @@ public class Stanga extends LinearOpMode {
                         mecanisme.lift.fourBar.down();
                         if (timer.milliseconds() >= gripTime) {
                             conesPlaced += 1;
-                            drive.setPoseEstimate(new Pose2d(drive.getPoseEstimate().getX() + corectieeroarex, drive.getPoseEstimate().getY() + corectieeroarey, drive.getPoseEstimate().getHeading()));
+                            drive.setPoseEstimate(drive.getPoseEstimate().plus(new Pose2d(corectieeroarex, corectieeroarey, 0)));
                             if(conesPlaced < 6){
                                 drive.followTrajectoryAsync(gotoStackfromMid);
                                 mecanisme.lift.nextStack();
