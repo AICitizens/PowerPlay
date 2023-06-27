@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.outoftheboxrobotics.photoncore.PhotonCore;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,6 +40,7 @@ drive.imu.startImuThread(this);
         waitForStart();
 
         while(!isStopRequested()) {
+            PhotonCore.CONTROL_HUB.clearBulkCache();
             x2 = gamepad1.right_stick_x;
             y = -gamepad1.left_stick_y * 1.1;
             x = gamepad1.left_stick_x;
